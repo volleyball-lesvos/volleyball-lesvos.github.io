@@ -51,7 +51,7 @@ button,select,input,textarea{font:inherit;color:inherit}
 .tl span:last-child{overflow:hidden;text-overflow:ellipsis}
 .masthead h1{margin:0;font-size:clamp(1.5rem,4.5vw,2.25rem);font-weight:800;letter-spacing:-.01em;line-height:1.1}
 .masthead p{margin:2px 0 0;opacity:.8;font-size:.95rem}
-.wrap{max-width:960px;margin:0 auto}
+.wrap{max-width:1120px;margin:0 auto}
 
 .picker{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -88,11 +88,13 @@ td.dim{color:var(--muted)}
 .round{margin-top:24px}
 .round h3{display:flex;align-items:baseline;gap:10px;font-size:1.05rem;margin:0 0 10px;font-weight:700}
 .tag{font-size:.75rem;font-weight:700;background:var(--ball);color:var(--ball-ink);padding:2px 8px;border-radius:999px}
-.matches{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.matches{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr))}
 .match{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.85rem;color:var(--muted);margin-bottom:8px}
 .meta time{font-weight:600;color:var(--ink)}
-.box{display:grid;grid-template-columns:1fr auto repeat(5,2.1em);align-items:center;row-gap:4px;font-variant-numeric:tabular-nums}
+.box{display:grid;grid-template-columns:minmax(0,1fr) auto repeat(5,1.9em);align-items:center;row-gap:6px;font-variant-numeric:tabular-nums}
+.box.pend{grid-template-columns:minmax(0,1fr) auto}
+@media (max-width:420px){.box{grid-template-columns:minmax(0,1fr) auto repeat(5,1.7em)}.box .s{font-size:.85rem}.box .logo{width:26px;height:26px}.box .tl{gap:8px}}
 .box .name{font-weight:500;white-space:nowrap;padding-right:8px;min-width:0;display:flex}
 .box .name.w{font-weight:800}
 .box .tot{width:1.9em;height:1.9em;display:grid;place-items:center;border-radius:6px;font-weight:800;border:1px solid var(--line);margin-right:6px}
@@ -362,7 +364,7 @@ function renderPublic(){
 function matchCard(m){
   const meta=`<div class="meta"><time>${esc(fmtDate(m))}</time><span>${esc(m.venue)}</span></div>`;
   if(!m.played){
-    return `<article class="match">${meta}<div class="box">
+    return `<article class="match">${meta}<div class="box pend">
       <div class="name">${teamHTML(m.home)}</div><div class="pending">–</div>
       <div class="name">${teamHTML(m.away)}</div><div class="pending">–</div></div></article>`;
   }
