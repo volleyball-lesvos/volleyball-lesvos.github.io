@@ -205,7 +205,8 @@ const CONFIG = {
   // Πώς εμφανίζεται κάθε ομάδα (site, εικόνες, λεζάντες). Αριστερά το όνομα όπως στο φύλλο.
   DISPLAY_NAMES: {"ΑΟΜ":"ΑΟ ΜΥΤΙΛΗΝΗΣ"},
   SEASON: "2026–27",
-  SEASON_START_YEAR: 2026,           // Αύγ–Δεκ = αυτό το έτος, Ιαν–Ιούλ = το επόμενο
+  SEASON_START_YEAR: 2026,
+  USUAL_DAY: 0,                       // Συνήθης μέρα αγώνων (0=Κυριακή). Αγώνες σε άλλη μέρα επισημαίνονται.           // Αύγ–Δεκ = αυτό το έτος, Ιαν–Ιούλ = το επόμενο
   SITE_URL: "volleyball-lesvos.github.io", // μπαίνει στις εικόνες και στις λεζάντες
   HASHTAGS: "#volleyball #βόλεϊ #Λέσβος",
   // Βαθμοί ανά αποτέλεσμα (όπως στο φύλλο «Βαθμολογία»)
@@ -296,6 +297,8 @@ const fmtRatio=r=>r.toLocaleString("el-GR",{maximumFractionDigits:3});
 
 /* ============ ΒΟΗΘΗΤΙΚΑ ============ */
 const DAYS=["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
+const DAYS_FULL=["Κυριακή","Δευτέρα","Τρίτη","Τετάρτη","Πέμπτη","Παρασκευή","Σάββατο"];
+const unusualDay=m=>!!(m.date&&!m.played&&m.date.getDay()!==CONFIG.USUAL_DAY);
 const pad2=n=>String(n).padStart(2,"0");
 function fmtDate(m){
   if(!m.date) return m.dateRaw&&!/ΟΡΙΣ/i.test(m.dateRaw)?m.dateRaw:"Ημερομηνία προς ορισμό";
@@ -367,7 +370,7 @@ function renderPublic(){
   $("content").innerHTML=html;
 }
 function matchCard(m){
-  const meta=`<div class="meta"><time>${esc(fmtDate(m))}</time><span>${esc(m.venue)}</span></div>`;
+  const meta=`<div class="meta"><time>${esc(fmtDate(m))}</time><span>${esc(m.venue)}</span>${unusualDay(m)?`<span class="tag">${DAYS_FULL[m.date.getDay()]}</span>`:""}</div>`;
   if(!m.played){
     return `<article class="match">${meta}<div class="box pend">
       <div class="name">${teamHTML(m.home)}</div><div class="pending">–</div>
@@ -390,7 +393,7 @@ document.addEventListener("click",e=>{
 window.addEventListener("hashchange",renderPublic);
 
 /* ============ ΕΙΚΟΝΕΣ ΓΙΑ SOCIAL ============ */
-const G={navy:"#0A2E6E",navyDeep:"#061C47",sky:"#7CC8F2",skySoft:"#DCEEFB",white:"#FFFFFF"};
+const G={navy:"#0A2E6E",navyDeep:"#061C47",sky:"#7CC8F2",skySoft:"#DCEEFB",white:"#FFFFFF",ball:"#FFC928"};
 const DISP='"Fira Sans Extra Condensed","DejaVu Sans Condensed","Arial Narrow",system-ui,sans-serif';
 const FONT='"Commissioner", system-ui, sans-serif';
 function fillOptions(sel,vals,label=v=>v){
@@ -597,10 +600,11 @@ function drawMatches(ctx,list,kind,x,y,w,h){
       fitText(ctx,upper(dn(n)),sw-16*s,46*s,800,DISP,"italic");ctx.fillText(upper(dn(n)),cx,cy0+ch-24*s);
     });
     const mid=x+w/2, cw=w-2*sw;
-    const pw=Math.min(300*s,cw-20*s), ph=104*s, py=cy0+34*s;
+    const fx=kind==="fixtures";
+    const pw=Math.min((fx?360:300)*s,cw-20*s), ph=(fx?150:104)*s, py=cy0+(fx?22:34)*s;
     ctx.fillStyle=G.navy;roundRect(ctx,mid-pw/2,py,pw,ph,20*s);ctx.fill();
     ctx.fillStyle=G.white;ctx.textAlign="center";ctx.textBaseline="middle";
-    const chipY=py+ph+24*s+26*s, chH=52*s;
+    const chipY=py+ph+(fx?14:24)*s+26*s, chH=52*s;
     if(kind==="results"&&m.played){
       ctx.font=`italic 900 ${Math.round(88*s)}px ${DISP}`;ctx.fillText(`${m.hs} - ${m.as}`,mid,py+ph/2+4*s);
       const n=m.sets.length, gp=8*s, cwid=Math.min(104*s,(cw-gp*(n-1))/n);
@@ -612,11 +616,16 @@ function drawMatches(ctx,list,kind,x,y,w,h){
     }else{
       const d=m.date;
       if(d){
-        ctx.font=`italic 900 ${Math.round(80*s)}px ${DISP}`;ctx.fillText(`${d.getHours()}:${pad2(d.getMinutes())}`,mid,py+ph/2+4*s);
-        chip(ctx,`${DAYS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}  |  ${m.venue||""}`,mid,chipY,Math.min(440*s,cw-10*s),chH,s,true);
+        const odd=unusualDay(m);
+        if(odd){ctx.strokeStyle=G.ball;ctx.lineWidth=5*s;roundRect(ctx,mid-pw/2,py,pw,ph,20*s);ctx.stroke()}
+        const dayTxt=`${upper(DAYS_FULL[d.getDay()])} ${d.getDate()}/${d.getMonth()+1}`;
+        ctx.fillStyle=odd?G.ball:G.white;fitText(ctx,dayTxt,pw-30*s,44*s,800,DISP,"italic");ctx.fillText(dayTxt,mid,py+40*s);
+        ctx.fillStyle=G.white;ctx.font=`italic 900 ${Math.round(78*s)}px ${DISP}`;ctx.fillText(`${d.getHours()}:${pad2(d.getMinutes())}`,mid,py+104*s);
+        if(m.venue) chip(ctx,m.venue,mid,chipY,Math.min(360*s,cw-10*s),chH,s,true);
       }else{
-        ctx.font=`italic 800 ${Math.round(48*s)}px ${DISP}`;ctx.fillText("ΘΑ ΟΡΙΣΤΕΙ",mid,py+ph/2+2*s);
-        chip(ctx,m.venue||"",mid,chipY,Math.min(300*s,cw),chH,s,false);
+        ctx.fillStyle=G.white;ctx.font=`italic 800 ${Math.round(54*s)}px ${DISP}`;ctx.fillText("ΘΑ ΟΡΙΣΤΕΙ",mid,py+ph/2-12*s);
+        ctx.fillStyle="rgba(255,255,255,.75)";ctx.font=`600 ${Math.round(26*s)}px ${FONT}`;ctx.fillText("ημέρα και ώρα",mid,py+ph/2+34*s);
+        if(m.venue) chip(ctx,m.venue,mid,chipY,Math.min(360*s,cw-10*s),chH,s,true);
       }
     }
   });
@@ -673,7 +682,12 @@ function caption(kind,cat,phase,round,ms){
       ?`${dn(m.home)} – ${dn(m.away)} ${m.hs}-${m.as} (${m.sets.map(s=>s.join("-")).join(", ")})`
       :`${dn(m.home)} – ${dn(m.away)}: δεν έχει διεξαχθεί`).join("\n")+link+`\n\n${CONFIG.HASHTAGS}`;
   }
-  return `🏐 ${cat}, ${phase}: πρόγραμμα ${ordinal(round)}\n\n`+list.map(m=>`${fmtDate(m)}\n${dn(m.home)} – ${dn(m.away)}\n📍 ${m.venue}`).join("\n\n")+link+`\n\n${CONFIG.HASHTAGS}`;
+  return `🏐 ${cat}, ${phase}: πρόγραμμα ${ordinal(round)}\n\n`+list.map(m=>{
+    const d=m.date;
+    const day=DAYS_FULL[d?d.getDay():0];
+    const when=d?`📅 ${unusualDay(m)?upper(day):day} ${d.getDate()}/${d.getMonth()+1}, ${d.getHours()}:${pad2(d.getMinutes())}`:"📅 Ημέρα και ώρα θα ανακοινωθούν";
+    return `${when}\n${dn(m.home)} – ${dn(m.away)}${m.venue?`\n📍 ${m.venue}`:""}`;
+  }).join("\n\n")+link+`\n\n${CONFIG.HASHTAGS}`;
 }
 ["gKind","gCat","gPhase","gRound","gFormat"].forEach(id=>$(id).addEventListener("change",()=>{
   if(id==="gCat"||id==="gKind") $("gRound").value="";
