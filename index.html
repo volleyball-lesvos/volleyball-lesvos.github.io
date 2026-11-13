@@ -19,6 +19,26 @@
             color: #1b365d;
             text-align: center;
         }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .nav-btn {
+            background-color: #fff;
+            color: #1b365d;
+            border: 2px solid #1b365d;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            background-color: #1b365d;
+            color: #fff;
+        }
         .matchday-card {
             background: #fff;
             border-radius: 8px;
@@ -33,6 +53,16 @@
             border-bottom: 2px solid #eee;
             padding-bottom: 8px;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .matchday-badge {
+            background: #f0ad4e;
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
         }
         .match-row {
             display: flex;
@@ -44,10 +74,23 @@
         .match-row:last-child {
             border-bottom: none;
         }
+        .match-info {
+            width: 15%;
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+        }
+        .match-teams {
+            width: 70%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .team {
             display: flex;
             align-items: center;
-            width: 40%;
+            width: 45%;
         }
         .team.home {
             justify-content: flex-end;
@@ -63,12 +106,34 @@
             margin: 0 10px;
         }
         .match-score {
+            width: 15%;
+            text-align: center;
             font-weight: bold;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .score-box {
             background: #e9ecef;
             padding: 6px 12px;
             border-radius: 4px;
             font-size: 0.9rem;
         }
+        .score-box.winner {
+            background: #f0ad4e;
+            color: white;
+        }
+        .set-scores {
+            display: flex;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #555;
+            align-items: center;
+        }
+        .hidden {
+            display: none;
+        }
+
         /* Στυλ Λογότυπων */
         .team-logo {
             width: 36px;
@@ -97,96 +162,280 @@
 
 <div class="container">
     <h1>Πρωτάθλημα Πετοσφαίρισης</h1>
-    <h2>Πρόγραμμα & Αγώνες με Λογότυπα Ομάδων</h2>
+    
+    <div class="nav-tabs">
+        <button class="nav-btn active" onclick="showCategory('K18')">ΚΟΡΙΤΣΙΑ Κ18</button>
+        <button class="nav-btn" onclick="showCategory('K16')">ΚΟΡΙΤΣΙΑ Κ16</button>
+        <button class="nav-btn" onclick="showCategory('K15')">ΚΟΡΙΤΣΙΑ Κ15</button>
+        <button class="nav-btn" onclick="showCategory('ANDRON')">ΑΝΔΡΩΝ</button>
+    </div>
 
-    <!-- 1η Αγωνιστική (Ανδρών) -->
-    <div class="matchday-card">
-        <div class="matchday-title">1η Αγωνιστική</div>
+    <!-- Κατηγορία: Κ18 -->
+    <div id="category-K18" class="category-content">
+        <h2>ΚΟΡΙΤΣΙΑ Κ18 - ΠΡΟΚΡΙΜΑΤΙΚΑ</h2>
         
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΑΣ Μαραθοκάμπου</span>
-                <div class="team-logo-placeholder">ΑΣ</div>
+        <div class="matchday-card">
+            <div class="matchday-title">1η Αγωνιστική</div>
+            
+            <div class="match-row">
+                <div class="match-info">
+                    <span>Κυρ 18/10, 16:00</span>
+                    <span>ΚΛΕΙΣΤΟ ΝΕΑΠΟΛΗΣ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΡΙΣΒΑΙΟΣ</span>
+                        <div class="team-logo-placeholder">ΑΡ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box">2</span>
+                        <div class="set-scores">
+                            <span>25</span><span>19</span><span>25</span><span>19</span><span>11</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <img src="ΠΟΛΥΚΡΑΤΗΣ LOGO.jpg" alt="ΑΟ Πολυκράτης" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΟ</div>'">
-                <span class="team-name">ΑΟ Πολυκράτης</span>
+            
+            <div class="match-row">
+                <div class="match-info"></div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΕΡΜΗΣ</span>
+                        <div class="team-logo-placeholder">ΕΡ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box winner">3</span>
+                        <div class="set-scores">
+                            <span>23</span><span>25</span><span>23</span><span>25</span><span>15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+            <div class="match-row">
+                <div class="match-info">
+                    <span>Κυρ 18/10, 18:00</span>
+                    <span>ΚΛΕΙΣΤΟ ΝΕΑΠΟΛΗΣ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΟ ΜΥΤΙΛΗΝΗΣ</span>
+                        <div class="team-logo-placeholder">ΑΟ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box">0</span>
+                        <div class="set-scores">
+                            <span>12</span><span>11</span><span>14</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="match-row">
+                <div class="match-info"></div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΘΛΗΣΗ</span>
+                        <div class="team-logo-placeholder">ΑΘ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box winner">3</span>
+                        <div class="set-scores">
+                            <span>25</span><span>25</span><span>25</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΑΣ Άθληση</span>
-                <div class="team-logo-placeholder">ΑΣ</div>
+        <div class="matchday-card">
+            <div class="matchday-title">
+                2η Αγωνιστική <span class="matchday-badge">Επόμενη</span>
             </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <img src="ΦΟΚ LOGO.jpg" alt="ΦΟΚ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΦΟ</div>'">
-                <span class="team-name">ΦΟΚ</span>
+            
+            <div class="match-row">
+                <div class="match-info">
+                    <span>Παρ 23/10, 19:00</span>
+                    <span>ΚΛΕΙΣΤΟ ΝΕΑΠΟΛΗΣ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΘΛΗΣΗ</span>
+                        <div class="team-logo-placeholder">ΑΘ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box winner">3</span>
+                        <div class="set-scores">
+                            <span>25</span><span>25</span><span>25</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="match-row">
+                <div class="match-info"></div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΡΙΣΒΑΙΟΣ</span>
+                        <div class="team-logo-placeholder">ΑΡ</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-box">0</span>
+                        <div class="set-scores">
+                            <span>11</span><span>12</span><span>16</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+            <div class="match-row">
+                <div class="match-info">
+                    <span>Ημερομηνία προς ορισμό</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΕΡΜΗΣ</span>
+                        <div class="team-logo-placeholder">ΕΡ</div>
+                    </div>
+                    <div class="match-score">
+                        <span>-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="match-row">
+                <div class="match-info"></div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΟ ΜΥΤΙΛΗΝΗΣ</span>
+                        <div class="team-logo-placeholder">ΑΟ</div>
+                    </div>
+                    <div class="match-score">
+                        <span>-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Κατηγορία: ΑΝΔΡΩΝ (Νέα προσθήκη με Λογότυπα) -->
+    <div id="category-ANDRON" class="category-content hidden">
+        <h2>ΠΡΩΤΑΘΛΗΜΑ ΑΝΔΡΩΝ (ΣΑΜΟΥ)</h2>
+        
+        <div class="matchday-card">
+            <div class="matchday-title">1η Αγωνιστική</div>
+            
+            <div class="match-row">
+                <div class="match-info">
+                    <span>10/01/2027</span>
+                    <span>ΚΑΡΛΟΒΑΣΟΥ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΣ Μαραθοκάμπου</span>
+                        <div class="team-logo-placeholder">ΑΣ</div>
+                    </div>
+                    <div class="match-score">-</div>
+                    <div class="team away">
+                        <img src="ΠΟΛΥΚΡΑΤΗΣ LOGO.jpg" alt="ΑΟ Πολυκράτης" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΟ</div>'">
+                        <span class="team-name">ΑΟ Πολυκράτης</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="match-row">
+                <div class="match-info">
+                    <span>10/01/2027</span>
+                    <span>ΜΥΤΙΛΗΝΗΣ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΣ Άθληση</span>
+                        <div class="team-logo-placeholder">ΑΣ</div>
+                    </div>
+                    <div class="match-score">-</div>
+                    <div class="team away">
+                        <img src="ΦΟΚ LOGO.jpg" alt="ΦΟΚ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΦΟ</div>'">
+                        <span class="team-name">ΦΟΚ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="matchday-card">
+            <div class="matchday-title">2η Αγωνιστική</div>
+            
+            <div class="match-row">
+                <div class="match-info">
+                    <span>17/01/2027</span>
+                    <span>ΠΥΘΑΓΟΡΕΙΟΥ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΑΟ Πολυκράτης</span>
+                        <img src="ΠΟΛΥΚΡΑΤΗΣ LOGO.jpg" alt="ΑΟ Πολυκράτης" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΟ</div>'">
+                    </div>
+                    <div class="match-score">-</div>
+                    <div class="team away">
+                        <div class="team-logo-placeholder">ΑΣ</div>
+                        <span class="team-name">ΑΣ Άθληση</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="match-row">
+                <div class="match-info">
+                    <span>17/01/2027</span>
+                    <span>ΚΑΜΠΟΧΩΡΙΩΝ</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team home">
+                        <span class="team-name">ΦΟΚ</span>
+                        <img src="ΦΟΚ LOGO.jpg" alt="ΦΟΚ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΦΟ</div>'">
+                    </div>
+                    <div class="match-score">-</div>
+                    <div class="team away">
+                        <img src="ΑΘΛΕΩΝ LOGO.jpg" alt="ΑΕΣΣ Αθλέων" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΕ</div>'">
+                        <span class="team-name">ΑΕΣΣ Αθλέων</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- 2η Αγωνιστική (Ανδρών) -->
-    <div class="matchday-card">
-        <div class="matchday-title">2η Αγωνιστική</div>
-        
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΑΟ Πολυκράτης</span>
-                <img src="ΠΟΛΥΚΡΑΤΗΣ LOGO.jpg" alt="ΑΟ Πολυκράτης" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΟ</div>'">
-            </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <div class="team-logo-placeholder">ΑΣ</div>
-                <span class="team-name">ΑΣ Άθληση</span>
-            </div>
-        </div>
-
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΦΟΚ</span>
-                <img src="ΦΟΚ LOGO.jpg" alt="ΦΟΚ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΦΟ</div>'">
-            </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <img src="ΑΘΛΕΩΝ LOGO.jpg" alt="ΑΕΣΣ Αθλέων" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΕ</div>'">
-                <span class="team-name">ΑΕΣΣ Αθλέων</span>
-            </div>
-        </div>
+    <!-- Κενές κατηγορίες για Κ16, Κ15 -->
+    <div id="category-K16" class="category-content hidden">
+        <h2>ΚΟΡΙΤΣΙΑ Κ16 (Προσεχώς)</h2>
     </div>
-    
-    <!-- 1η Αγωνιστική Γυναικών (Πρόταση) -->
-    <div class="matchday-card">
-        <div class="matchday-title">1η Αγωνιστική Γυναικών (Πρόταση)</div>
-        
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΦΟΚ</span>
-                <img src="ΦΟΚ LOGO.jpg" alt="ΦΟΚ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΦΟ</div>'">
-            </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <div class="team-logo-placeholder">ΑΕ</div>
-                <span class="team-name">ΑΕΤΟΣ Λήμνου</span>
-            </div>
-        </div>
-
-        <div class="match-row">
-            <div class="team home">
-                <span class="team-name">ΝΗΡΕΑΣ</span>
-                <img src="ΝΗΡΕΑΣ LOGO.jpeg" alt="ΝΗΡΕΑΣ" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΝΗ</div>'">
-            </div>
-            <div class="match-score">-</div>
-            <div class="team away">
-                <div class="team-logo-placeholder">ΗΦ</div>
-                <span class="team-name">ΗΦΑΙΣΤΟΣ Λήμνου</span>
-            </div>
-        </div>
+    <div id="category-K15" class="category-content hidden">
+        <h2>ΚΟΡΙΤΣΙΑ Κ15 (Προσεχώς)</h2>
     </div>
 
 </div>
+
+<script>
+    function showCategory(categoryId) {
+        // Κρύψε όλες τις κατηγορίες
+        document.querySelectorAll('.category-content').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Αφαίρεσε την κλάση active από όλα τα κουμπιά
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Εμφάνισε την επιλεγμένη κατηγορία
+        document.getElementById('category-' + categoryId).classList.remove('hidden');
+        
+        // Βρες και κάνε active το αντίστοιχο κουμπί (με βάση το κείμενο)
+        event.target.classList.add('active');
+    }
+</script>
 
 </body>
 </html>
