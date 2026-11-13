@@ -61,7 +61,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;
   padding:8px 16px;font-weight:600;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:var(--bg)}
-.row.phases{margin-top:8px}
+.row.phases{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+#cats{display:block;overflow:visible}
+.cgrp{display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cgrp::-webkit-scrollbar{display:none}
+.cgrp+.cgrp{margin-top:8px}
+.gl{flex:none;width:84px;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chip.soon{color:var(--muted);border-style:dashed;background:transparent;opacity:.75}
+.chip.soon[aria-pressed="true"]{opacity:1;color:var(--sea);border-color:var(--sea);background:transparent}
+.chip small{font-size:.68rem;font-weight:600;margin-left:6px;text-transform:lowercase}
+.soon-msg{margin-top:16px;font-size:1.05rem}
+@media (max-width:600px){.gl{width:58px;font-size:.62rem;letter-spacing:.02em}.picker .chip{padding:6px 12px;font-size:.9rem}.row.phases{margin-top:6px;padding-top:6px}}
 .row.phases .chip{padding:5px 12px;font-size:.9rem;font-weight:500}
 
 main .wrap{padding:8px 20px 40px}
@@ -204,6 +214,24 @@ const CONFIG = {
   LOGO_DIR: "logos/",
   // Πώς εμφανίζεται κάθε ομάδα (site, εικόνες, λεζάντες). Αριστερά το όνομα όπως στο φύλλο.
   DISPLAY_NAMES: {"ΑΟΜ":"ΑΟ ΜΥΤΙΛΗΝΗΣ"},
+  // Σειρά κατηγοριών και φάσεων στο site. Εμφανίζονται μόνο όσες έχουν αγώνες στο φύλλο, με αυτή τη σειρά.
+  // Τα ονόματα πρέπει να είναι ίδια με το φύλλο (κενά και κεφαλαία/πεζά δεν πειράζουν).
+  // Κατηγορία ή φάση που υπάρχει στο φύλλο αλλά όχι εδώ, εμφανίζεται στο τέλος.
+  // Η ίδια σειρά είναι και η προτεραιότητα για την αρχική σελίδα, όταν δύο πρωταθλήματα
+  // έχουν αγώνα εξίσου κοντά στο σήμερα (ίδια μέρα απόσταση).
+  STRUCTURE: [
+    {group:"Ανδρικά", cats:[
+      {name:"ΑΝΔΡΕΣ",       phases:["ΠΡΩΤΑΘΛΗΜΑ","FINAL 4"]},
+      {name:"ΑΓΟΡΙΑ Κ18",   phases:["ΠΡΩΤΑΘΛΗΜΑ"]}
+    ]},
+    {group:"Γυναικεία", cats:[
+      {name:"ΓΥΝΑΙΚΕΣ",     phases:["ΠΡΩΤΑΘΛΗΜΑ"]},
+      {name:"ΚΟΡΙΤΣΙΑ Κ20", phases:["ΠΡΩΤΑΘΛΗΜΑ"]},
+      {name:"ΚΟΡΙΤΣΙΑ Κ18", phases:["ΠΡΟΚΡΙΜΑΤΙΚΑ","Α ΟΜΙΛΟΣ","Β ΟΜΙΛΟΣ"]},
+      {name:"ΚΟΡΙΤΣΙΑ Κ16", phases:["ΠΡΟΚΡΙΜΑΤΙΚΑ","Α ΟΜΙΛΟΣ","Β ΟΜΙΛΟΣ"]},
+      {name:"ΚΟΡΙΤΣΙΑ Κ15", phases:["ΠΡΟΚΡΙΜΑΤΙΚΑ","Α ΟΜΙΛΟΣ","Β ΟΜΙΛΟΣ"]}
+    ]}
+  ],
   SEASON: "2026–27",
   SEASON_START_YEAR: 2026,
   USUAL_DAY: 0,                       // Συνήθης μέρα αγώνων (0=Κυριακή). Αγώνες σε άλλη μέρα επισημαίνονται.           // Αύγ–Δεκ = αυτό το έτος, Ιαν–Ιούλ = το επόμενο
@@ -271,9 +299,15 @@ function toMatches(rows){
       venue:r["Γήπεδο"], home:r["Γηπεδούχος"], away:r["Φιλοξενούμενη"],
       hs, as, sets, played: hs!==null && as!==null && (hs===3||as===3)
     };
-  }).filter(m=>m.cat&&m.phase&&m.home&&m.away);
+  }).filter(m=>m.cat&&m.phase&&m.home&&m.away)
+    .map(m=>{m.cat=canonCat(m.cat);m.phase=canonPhase(m.cat,m.phase);return m});
 }
 const uniq=a=>[...new Set(a)];
+/* Κοινό «κλειδί» για να ταιριάζουν ονόματα: χωρίς κενά/τόνους, κεφαλαία */
+const nkey=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleUpperCase("el").replace(/\s+/g,"");
+const STRUCT_CATS=(CONFIG.STRUCTURE||[]).flatMap(g=>g.cats.map(c=>({...c,group:g.group})));
+function canonCat(c){const f=STRUCT_CATS.find(x=>nkey(x.name)===nkey(c));return f?f.name:String(c).trim()}
+function canonPhase(cat,p){const f=STRUCT_CATS.find(x=>x.name===cat);const q=f&&f.phases.find(x=>nkey(x)===nkey(p));return q||String(p).trim()}
 
 function standings(matches){
   const T={};
@@ -325,8 +359,35 @@ function readHash(){
   if(parts[0]==="studio") return {studio:true};
   return {cat:parts[0]||null,phase:parts[1]||null};
 }
-function cats(){return uniq(ALL.map(m=>m.cat))}
-function phases(cat){return uniq(ALL.filter(m=>m.cat===cat).map(m=>m.phase))}
+/* Όλες οι κατηγορίες/φάσεις με τη σειρά του CONFIG.STRUCTURE (+ όσες έξτρα έχει το φύλλο) */
+function allCats(){return uniq([...STRUCT_CATS.map(c=>c.name),...ALL.map(m=>m.cat)])}
+function allPhases(cat){const f=STRUCT_CATS.find(c=>c.name===cat);return uniq([...(f?f.phases:[]),...ALL.filter(m=>m.cat===cat).map(m=>m.phase)])}
+const hasCat=c=>ALL.some(m=>m.cat===c), hasPhase=(c,p)=>ALL.some(m=>m.cat===c&&m.phase===p);
+/* Μόνο όσες έχουν αγώνες (για το studio και την αρχική επιλογή) */
+function cats(){return allCats().filter(hasCat)}
+function phases(cat){return allPhases(cat).filter(p=>hasPhase(cat,p))}
+/* Αρχική επιλογή: η κατηγορία/φάση με τον αγώνα που είναι πιο κοντά στο σήμερα
+   (το πιο πρόσφατο αποτέλεσμα ή ο επόμενος αγώνας, όποιο είναι πιο κοντά, σε ημέρες).
+   Σε ισοπαλία κερδίζει όποια είναι πρώτη στη σειρά του CONFIG.STRUCTURE. */
+function nearestScope(){
+  const day=d=>Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/864e5);
+  const today=day(new Date()), order=allCats(), rank=m=>{const i=order.indexOf(m.cat);const ps=allPhases(m.cat);return [i,ps.indexOf(m.phase)]};
+  let best=null,bk=null;
+  for(const m of ALL){if(!m.date)continue;
+    const k=[Math.abs(day(m.date)-today),...rank(m)];
+    if(!bk||k[0]<bk[0]||(k[0]===bk[0]&&(k[1]<bk[1]||(k[1]===bk[1]&&k[2]<bk[2])))){bk=k;best=m}}
+  return best?{cat:best.cat,phase:best.phase}:null;
+}
+/* Η τελευταία επιλογή κάθε επισκέπτη κρατιέται στον browser του */
+const SAVE_KEY="vl-last-scope";
+function savedScope(){try{const v=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return v&&hasPhase(v.cat,v.phase)?v:null}catch(e){return null}}
+function saveScope(cat,phase){try{localStorage.setItem(SAVE_KEY,JSON.stringify({cat,phase}))}catch(e){}}
+function groupsForPicker(){
+  const gs=(CONFIG.STRUCTURE||[]).map(g=>({group:g.group,cats:g.cats.map(c=>c.name).filter(hasCat)}));
+  const extra=cats().filter(c=>!STRUCT_CATS.some(x=>x.name===c));
+  if(extra.length) gs.push({group:"Άλλα",cats:extra});
+  return gs.filter(g=>g.cats.length);
+}
 function inScope(cat,phase){return ALL.filter(m=>m.cat===cat&&m.phase===phase)}
 
 /* ============ ΔΗΜΟΣΙΑ ΣΕΛΙΔΑ ============ */
@@ -334,17 +395,27 @@ function renderPublic(){
   const h=readHash();
   $("publicView").hidden=!!h.studio; $("studio").hidden=!h.studio;
   if(h.studio){renderStudio();return}
-  const cs=cats();
-  if(!cs.length){$("content").innerHTML=`<p class="empty">Δεν υπάρχουν ακόμη αγώνες στο φύλλο.</p>`;return}
-  state.cat=cs.includes(h.cat)?h.cat:cs[0];
-  const ps=phases(state.cat);
-  state.phase=ps.includes(h.phase)?h.phase:ps[0];
+  const ac=cats();
+  if(!ac.length){$("content").innerHTML=`<p class="empty">Δεν υπάρχουν ακόμη αγώνες στο φύλλο.</p>`;return}
+  const hc=h.cat&&ac.find(c=>nkey(c)===nkey(h.cat));
+  const near=hc?null:(savedScope()||nearestScope());
+  state.cat=hc||(near&&near.cat)||ac[0];
+  const ap=phases(state.cat);
+  const hp=h.phase&&ap.find(p=>nkey(p)===nkey(h.phase));
+  state.phase=hp||(near&&near.cat===state.cat?near.phase:null)||ap[0];
 
-  $("cats").innerHTML=cs.map(c=>`<button class="chip" aria-pressed="${c===state.cat}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
-  $("phases").innerHTML=ps.map(p=>`<button class="chip" aria-pressed="${p===state.phase}" data-phase="${esc(p)}">${esc(p)}</button>`).join("");
+  const soon=`<small>σύντομα</small>`;
+  $("cats").innerHTML=groupsForPicker().map(g=>`<div class="cgrp" role="group" aria-label="${esc(g.group)}"><span class="gl">${esc(g.group)}</span>${
+    g.cats.map(c=>`<button class="chip${hasCat(c)?"":" soon"}" aria-pressed="${c===state.cat}" data-cat="${esc(c)}">${esc(c)}${hasCat(c)?"":soon}</button>`).join("")}</div>`).join("");
+  $("phases").innerHTML=ap.map(p=>`<button class="chip${hasPhase(state.cat,p)?"":" soon"}" aria-pressed="${p===state.phase}" data-phase="${esc(p)}">${esc(p)}${hasPhase(state.cat,p)?"":soon}</button>`).join("");
   $("phases").hidden=false;
 
   const ms=inScope(state.cat,state.phase);
+  if(!ms.length){
+    $("content").innerHTML=`<div class="scope"><span class="cat">${esc(state.cat)}</span><span class="ph">${esc(state.phase||"")}</span></div>
+    <p class="empty soon-msg">Το πρόγραμμα θα ανακοινωθεί σύντομα.</p>`;
+    return;
+  }
   const st=standings(ms);
   let html=`<div class="scope"><span class="cat">${esc(state.cat)}</span><span class="ph">${esc(state.phase)}</span></div>
   <h2>Βαθμολογία</h2>
@@ -387,8 +458,8 @@ function matchCard(m){
 }
 document.addEventListener("click",e=>{
   const c=e.target.closest("[data-cat]"),p=e.target.closest("[data-phase]");
-  if(c){location.hash="#/"+encodeURIComponent(c.dataset.cat)}
-  if(p){location.hash="#/"+encodeURIComponent(state.cat)+"/"+encodeURIComponent(p.dataset.phase)}
+  if(c){const ps=phases(c.dataset.cat);saveScope(c.dataset.cat,ps[0]);location.hash="#/"+encodeURIComponent(c.dataset.cat)}
+  if(p){saveScope(state.cat,p.dataset.phase);location.hash="#/"+encodeURIComponent(state.cat)+"/"+encodeURIComponent(p.dataset.phase)}
 });
 window.addEventListener("hashchange",renderPublic);
 
