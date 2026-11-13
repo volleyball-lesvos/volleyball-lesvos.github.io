@@ -322,7 +322,7 @@
         </div>
     </div>
 
-    <!-- Κατηγορία: ΑΝΔΡΩΝ (Νέα προσθήκη με Λογότυπα) -->
+    <!-- Κατηγορία: ΑΝΔΡΩΝ (Με Λογότυπα) -->
     <div id="category-ANDRON" class="category-content hidden">
         <h2>ΠΡΩΤΑΘΛΗΜΑ ΑΝΔΡΩΝ (ΣΑΜΟΥ)</h2>
         
@@ -380,6 +380,7 @@
                         <img src="https://i.ibb.co/L5QpKjS/image-2024-11-13-11-20-41.png" alt="ΑΟ Πολυκράτης" class="team-logo" onerror="this.outerHTML='<div class=\'team-logo-placeholder\'>ΑΟ</div>'">
                     </div>
                     <div class="match-score">-</div>
+                    <div class="match-score"></div>
                     <div class="team away">
                         <div class="team-logo-placeholder">ΑΣ</div>
                         <span class="team-name">ΑΣ Άθληση</span>
@@ -407,7 +408,7 @@
         </div>
     </div>
     
-    <!-- Κενές κατηγορίες για Κ16, Κ15 -->
+    <!-- Κατηγορίες Κ16, Κ15 -->
     <div id="category-K16" class="category-content hidden">
         <h2>ΚΟΡΙΤΣΙΑ Κ16 (Προσεχώς)</h2>
     </div>
@@ -419,20 +420,13 @@
 
 <script>
     function showCategory(categoryId) {
-        // Κρύψε όλες τις κατηγορίες
         document.querySelectorAll('.category-content').forEach(el => {
             el.classList.add('hidden');
         });
-        
-        // Αφαίρεσε την κλάση active από όλα τα κουμπιά
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
-        // Εμφάνισε την επιλεγμένη κατηγορία
         document.getElementById('category-' + categoryId).classList.remove('hidden');
-        
-        // Βρες και κάνε active το αντίστοιχο κουμπί (με βάση το κείμενο)
         event.target.classList.add('active');
     }
 </script>
